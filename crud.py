@@ -1,41 +1,48 @@
 from sqlalchemy.orm import Session
 import models, schemas
 
+# -------------------------
 # Create a new user
-
+# -------------------------
 def create_user(db: Session, user: schemas.UserCreate):
     """
     Insert a new user into the database.
     """
-
     db_user = models.User(
-        email=user .email,
-        hashed_password=user.password,
-        is_active=user.is_activate
+        username=user.email,  
+        email=user.email,
+        password=user.password,
+        is_active=True
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
+# -------------------------
 # Get all users
+# -------------------------
 def get_users(db: Session, skip: int = 0, limit: int = 10):
     """
-    Retrive a list of users from the database.
-    Paginacion supported with skip en limit.
+    Retrieve a list of users from the database.
+    Pagination supported with skip and limit.
     """
-    return db.query(models.user).offset(skip).limit(limit).all()
+    return db.query(models.User).offset(skip).limit(limit).all()
 
+# -------------------------
 # Get one user by ID
+# -------------------------
 def get_user(db: Session, user_id: int):
     """
-    Retrive a single user by teheir ID.
+    Retrieve a single user by their ID.
     """
-    return db.query(models.user).filter(models.user.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
+# -------------------------
 # Get user by email
+# -------------------------
 def get_user_by_email(db: Session, email: str):
     """
-    Retrive a single user by their email.
+    Retrieve a single user by their email.
     """
-    return db.query(models.user).filter(models.user.email == email).first()
+    return db.query(models.User).filter(models.User.email == email).first()

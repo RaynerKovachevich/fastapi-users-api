@@ -19,7 +19,7 @@ def verify_password(plain_password: str, hashed_password: str):
     """Verify a password against its hash"""
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_acces_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = None):
     """Create JWT token"""
     to_encode = data.copy()
     expire = datetime.now() + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
