@@ -9,7 +9,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     Insert a new user into the database.
     """
     db_user = models.User(
-        username=user.email,  
+        username=user.username,  
         email=user.email,
         password=user.password,
         is_active=True
