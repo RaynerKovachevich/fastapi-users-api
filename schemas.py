@@ -6,6 +6,7 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = True
 
 class UserCreate(UserBase):
+    username: str
     password: str
 
 class UserLogin(BaseModel):
@@ -14,9 +15,11 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    username: str
 
-    class Config:
-        orm_mode = True   
+    model_config = {
+        "from_attributes": True
+    }
 
 class UserOut(UserResponse):
     pass         

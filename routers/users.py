@@ -13,14 +13,21 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.UserOut)
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    """
-    Register a new user in the database.
-    """
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    user.password = hash_password(user.password)
-    return crud.create_user(db=db, user=user)
+    
+    
+    hashed_password = hash_password(user.password)
+    user_in = schemas.UserCreate(
+        username=user.username,
+        email=user.email,
+        password=hashed_password
+    )
+    
+    db_user = crud.create_user(db=db, user=user_in)
+    return db_user
+
 
 @router.post("/login", response_model=schemas.Token)
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
