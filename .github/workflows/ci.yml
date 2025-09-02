@@ -2,33 +2,35 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fastapi_db
         ports:
-          - 5432:5432
+          - 5434:5432
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready -U postgres -d fastapi_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     env:
-      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5434/fastapi_db
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -41,11 +43,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5434 -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
       - name: Create database tables
         run: |
-          python -c "from database import Base, engine; Base.metadata.create_all(bind=engine)"
+          python - <<EOF
+          from database import Base, engine
+          import models  # importa todos tus modelos
+          Base.metadata.create_all(bind=engine)
+          EOF
 
       - name: Run tests
         run: |
-
-          PYTHONPATH=. pytest -v tests/
+          pytest -v
