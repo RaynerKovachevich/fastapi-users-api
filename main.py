@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routers import users
-from database import Base,engine
+from database import Base, engine
 
 app = FastAPI(title="FastAPI Users API", version="1.0")
 
@@ -8,5 +8,7 @@ app = FastAPI(title="FastAPI Users API", version="1.0")
 def read_root():
     return {"message": "API is working"}
 
+
+Base.metadata.create_all(bind=engine)
 
 app.include_router(users.router)
